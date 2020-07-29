@@ -3,36 +3,13 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
+using Newtonsoft.Json;
 using pelazem.http;
 
 namespace FarmBeats.Api.Client
 {
 	public class ApiClient
 	{
-		#region Enums
-
-		public enum ResourceType
-		{
-			Farm,
-			Device,
-			DeviceModel,
-			Sensor,
-			SensorModel,
-			Telemetry,
-			Job,
-			JobType,
-			ExtendedType,
-			Partner,
-			Scene,
-			SceneFile,
-			Rule,
-			Alert,
-			RoleDefinition,
-			RoleAssignment
-		}
-
-		#endregion
-
 		#region Constants
 
 		public const string AUTHORIZATION_HEADER = "Authorization";
@@ -152,17 +129,103 @@ namespace FarmBeats.Api.Client
 			return await this.HttpUtil.GetHttpResponseContentAsync(httpResponseMessage, asFormattedJson);
 		}
 
+		public async Task<T> GetResourceFromHttpResponseAsync<T>(HttpResponseMessage httpResponseMessage)
+			where T : new()
+		{
+			if (httpResponseMessage?.Content == null || !httpResponseMessage.IsSuccessStatusCode)
+				return default(T);
+
+			string responseContent = await GetHttpResponseContentAsync(httpResponseMessage, false);
+
+			T result = JsonConvert.DeserializeObject<T>(responseContent);
+
+			return result;
+		}
+
+		private string GetApiEntityPathFromType<T>()
+		{
+			string result = typeof(T)
+				.Name
+				.Replace("Response", string.Empty)
+				.Replace("Request", string.Empty)
+				.Replace("Get", string.Empty)
+			;
+
+			return result;
+		}
+
 		#endregion
 
 		#region API
 
-		public async Task<HttpResponseMessage> GetResourcesAsync(ResourceType resourceType)
+		public async Task<HttpResponseMessage> GetResourcesAsync<T>()
+			where T : new()
 		{
 			PrepareGetRequestHeaders();
 
-			Uri uri = new Uri(this.ApiEndpointUri, resourceType.ToString());
+			string relativeUriPiece = GetApiEntityPathFromType<T>();
 
-			HttpResponseMessage httpResponseMessage = await this.HttpUtil.HttpClient.GetAsync(uri);
+			Uri uri = new Uri(this.ApiEndpointUri, relativeUriPiece);
+
+			HttpResponseMessage httpResponseMessage = await this.HttpUtil.GetAsync(uri);
+
+			return httpResponseMessage;
+		}
+
+		public async Task<HttpResponseMessage> GetResourceAsync<T>(string id)
+			where T : new()
+		{
+			PrepareGetRequestHeaders();
+
+			string relativeUriPiece = $"{GetApiEntityPathFromType<T>()}/{id}";
+
+			Uri uri = new Uri(this.ApiEndpointUri, relativeUriPiece);
+
+			HttpResponseMessage httpResponseMessage = await this.HttpUtil.GetAsync(uri);
+
+			return httpResponseMessage;
+		}
+
+		public async Task<HttpResponseMessage> DeleteResourceAsync<T>(string id)
+			where T : new()
+		{
+			PrepareGetRequestHeaders();
+
+			string relativeUriPiece = $"{GetApiEntityPathFromType<T>()}/{id}";
+
+			Uri uri = new Uri(this.ApiEndpointUri, relativeUriPiece);
+
+			HttpResponseMessage httpResponseMessage = await this.HttpUtil.DeleteAsync(uri);
+
+			return httpResponseMessage;
+		}
+
+		public async Task<HttpResponseMessage> PutResourceAsync<T>(string id, T resourceToUpdate)
+		{
+			PrepareGetRequestHeaders();
+
+			string relativeUriPiece = $"{GetApiEntityPathFromType<T>()}/{id}";
+
+			Uri uri = new Uri(this.ApiEndpointUri, relativeUriPiece);
+
+			HttpContent content = this.HttpUtil.PrepareHttpContent(JsonConvert.SerializeObject(resourceToUpdate), CONTENT_TYPE_JSON);
+
+			HttpResponseMessage httpResponseMessage = await this.HttpUtil.PostAsync(uri, content);
+
+			return httpResponseMessage;
+		}
+
+		public async Task<HttpResponseMessage> PostResourceAsync<T>(T resourceToCreate)
+		{
+			PreparePostRequestHeaders();
+
+			string relativeUriPiece = $"{GetApiEntityPathFromType<T>()}";
+
+			Uri uri = new Uri(this.ApiEndpointUri, relativeUriPiece);
+
+			HttpContent content = this.HttpUtil.PrepareHttpContent(JsonConvert.SerializeObject(resourceToCreate), CONTENT_TYPE_JSON);
+
+			HttpResponseMessage httpResponseMessage = await this.HttpUtil.PostAsync(uri, content);
 
 			return httpResponseMessage;
 		}
