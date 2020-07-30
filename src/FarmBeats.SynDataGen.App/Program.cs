@@ -58,7 +58,7 @@ namespace FarmBeats.SynDataGen.App
 
 		static async Task<IList<DeviceModelResponse>> CreateDeviceModelsAsync()
 		{
-			int createThisMany = 10;
+			int createThisMany = 25;
 
 			IList<DeviceModelResponse> responses = new List<DeviceModelResponse>(createThisMany);
 			IList<DeviceModelRequest> requests = _generator.GetDeviceModelRequests(createThisMany);
@@ -75,7 +75,7 @@ namespace FarmBeats.SynDataGen.App
 
 		static async Task<IList<DeviceResponse>> CreateDevicesAsync(IList<FarmResponse> farmResponses, IList<DeviceModelResponse> deviceModelResponses)
 		{
-			int createThisMany = 10;
+			int createThisMany = 1000;
 
 			IList<DeviceResponse> responses = new List<DeviceResponse>(createThisMany);
 			IList<DeviceRequest> requests = _generator.GetDeviceRequests
@@ -97,7 +97,7 @@ namespace FarmBeats.SynDataGen.App
 
 		static async Task<IList<SensorModelResponse>> CreateSensorModelsAsync()
 		{
-			int createThisMany = 10;
+			int createThisMany = 200;
 
 			IList<SensorModelResponse> responses = new List<SensorModelResponse>(createThisMany);
 			IList<SensorModelRequest> requests = _generator.GetSensorModelRequests(createThisMany);
@@ -114,7 +114,7 @@ namespace FarmBeats.SynDataGen.App
 
 		static async Task<IList<SensorResponse>> CreateSensorsAsync(IList<DeviceResponse> deviceResponses, IList<SensorModelResponse> sensorModelResponses)
 		{
-			int createThisMany = 10;
+			int createThisMany = 5000;
 
 			IList<SensorResponse> responses = new List<SensorResponse>(createThisMany);
 			IList<SensorRequest> requests = _generator.GetSensorRequests
