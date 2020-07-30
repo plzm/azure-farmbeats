@@ -173,7 +173,7 @@ namespace FarmBeats.SynDataGen
 
 			for (int i = 0; i < numOfPoints; i++)
 			{
-				double[] point = new double[2] { _faker.Random.Double(-100, 100), _faker.Random.Double(-100, 100) };
+				double[] point = new double[2] { _faker.Random.Double(-90, 90), _faker.Random.Double(-90, 90) };
 				points[i] = point;
 			}
 			points[numOfPoints] = points[0];
@@ -195,8 +195,8 @@ namespace FarmBeats.SynDataGen
 			Location l = new Location
 			{
 				Elevation = _faker.Random.Double(0, 3000),
-				Latitude = _faker.Random.Double(-100, 100),
-				Longitude = _faker.Random.Double(-100, 100)
+				Latitude = _faker.Random.Double(-90, 90),
+				Longitude = _faker.Random.Double(-180, 180)
 			};
 
 			return l;
