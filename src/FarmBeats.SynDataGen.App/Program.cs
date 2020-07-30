@@ -23,7 +23,7 @@ namespace FarmBeats.SynDataGen.App
 			_config = GetConfiguration();
 			_apiClient = new ApiClient(_config.TenantId, _config.ClientId, _config.ClientSecret, _config.ApiEndpoint);
 
-			CreateDeviceModelsAsync().Wait();
+			List<DeviceModelResponse> deviceModelResponses = CreateDeviceModelsAsync().Result;
 
 			Console.WriteLine("Done - press any key");
 			Console.ReadKey();
