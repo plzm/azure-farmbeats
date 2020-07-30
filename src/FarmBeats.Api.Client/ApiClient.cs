@@ -103,7 +103,7 @@ namespace FarmBeats.Api.Client
 		{
 			PrepareGetRequestHeaders();
 
-			this.HttpUtil.AddRequestHeader(ACCEPT_HEADER, CONTENT_TYPE_JSON);
+			//this.HttpUtil.AddRequestHeader(ACCEPT_HEADER, CONTENT_TYPE_JSON);
 		}
 
 		public string GetHttpResponseHeaders(HttpResponseMessage httpResponseMessage, bool asFormattedJson = false)

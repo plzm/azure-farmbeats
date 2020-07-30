@@ -12,7 +12,7 @@
     "openApiToCSharpClient": {
       "clientBaseClass": null,
       "configurationClass": null,
-      "generateClientClasses": true,
+      "generateClientClasses": false,
       "generateClientInterfaces": false,
       "clientBaseInterface": null,
       "injectHttpClient": true,
@@ -69,7 +69,7 @@
       "arrayBaseType": "System.Collections.ObjectModel.Collection",
       "dictionaryBaseType": "System.Collections.Generic.Dictionary",
       "classStyle": "Poco",
-      "generateDefaultValues": false,
+      "generateDefaultValues": true,
       "generateDataAnnotations": true,
       "excludedTypeNames": [],
       "excludedParameterNames": [],
@@ -82,15 +82,15 @@
       "inlineNamedTuples": true,
       "inlineNamedAny": false,
       "generateDtoTypes": true,
-      "generateOptionalPropertiesAsNullable": true,
-      "generateNullableReferenceTypes": true,
+      "generateOptionalPropertiesAsNullable": false,
+      "generateNullableReferenceTypes": false,
       "templateDirectory": null,
       "typeNameGeneratorType": null,
       "propertyNameGeneratorType": null,
       "enumNameGeneratorType": null,
       "serviceHost": null,
       "serviceSchemes": null,
-      "output": null,
+      "output": "FarmBeats.cs",
       "newLineBehavior": "Auto"
     }
   }

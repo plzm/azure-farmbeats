@@ -17,35 +17,121 @@ namespace FarmBeats.SynDataGen.App
 	{
 		private static dynamic _config = null;
 		private static ApiClient _apiClient = null;
+		private static DataGenerator _generator = new DataGenerator();
 
 		static void Main(string[] args)
 		{
 			_config = GetConfiguration();
 			_apiClient = new ApiClient(_config.TenantId, _config.ClientId, _config.ClientSecret, _config.ApiEndpoint);
 
-			List<DeviceModelResponse> deviceModelResponses = CreateDeviceModelsAsync().Result;
+			//IList<FarmResponse> farmResponses = CreateFarmsAsync().Result;
+			IList<FarmResponse> farmResponses = null;
+
+			IList <DeviceModelResponse> deviceModelResponses = CreateDeviceModelsAsync().Result;
+
+			IList<DeviceResponse> deviceResponses = CreateDevicesAsync(farmResponses, deviceModelResponses).Result;
+
+			IList<SensorModelResponse> sensorModelResponses = CreateSensorModelsAsync().Result;
+
+			IList<SensorResponse> sensorResponses = CreateSensorsAsync(deviceResponses, sensorModelResponses).Result;
 
 			Console.WriteLine("Done - press any key");
 			Console.ReadKey();
 		}
 
-		static async Task<List<DeviceModelResponse>> CreateDeviceModelsAsync()
+		static async Task<IList<FarmResponse>> CreateFarmsAsync()
 		{
-			DataGenerator generator = new DataGenerator();
+			int createThisMany = 5;
 
-			int numberOfDeviceModels = 10;
+			IList<FarmResponse> responses = new List<FarmResponse>(createThisMany);
+			IList<FarmRequest> requests = _generator.GetFarmRequests(createThisMany);
 
-			List<DeviceModelResponse> deviceModelReponses = new List<DeviceModelResponse>(numberOfDeviceModels);
-			List<DeviceModelRequest> deviceModelRequests = generator.GetDeviceModelRequests(numberOfDeviceModels);
-
-			foreach (DeviceModelRequest deviceModelRequest in deviceModelRequests)
+			foreach (FarmRequest request in requests)
 			{
-				HttpResponseMessage httpResponseMessage = await _apiClient.PostResourceAsync(deviceModelRequest);
-				DeviceModelResponse deviceModelResponse = await _apiClient.GetResourceFromHttpResponseAsync<DeviceModelResponse>(httpResponseMessage);
-				deviceModelReponses.Add(deviceModelResponse);
+				HttpResponseMessage httpResponseMessage = await _apiClient.PostResourceAsync(request);
+				FarmResponse response = await _apiClient.GetResourceFromHttpResponseAsync<FarmResponse>(httpResponseMessage);
+				responses.Add(response);
 			}
 
-			return deviceModelReponses;
+			return responses;
+		}
+
+		static async Task<IList<DeviceModelResponse>> CreateDeviceModelsAsync()
+		{
+			int createThisMany = 10;
+
+			IList<DeviceModelResponse> responses = new List<DeviceModelResponse>(createThisMany);
+			IList<DeviceModelRequest> requests = _generator.GetDeviceModelRequests(createThisMany);
+
+			foreach (DeviceModelRequest request in requests)
+			{
+				HttpResponseMessage httpResponseMessage = await _apiClient.PostResourceAsync(request);
+				DeviceModelResponse response = await _apiClient.GetResourceFromHttpResponseAsync<DeviceModelResponse>(httpResponseMessage);
+				responses.Add(response);
+			}
+
+			return responses;
+		}
+
+		static async Task<IList<DeviceResponse>> CreateDevicesAsync(IList<FarmResponse> farmResponses, IList<DeviceModelResponse> deviceModelResponses)
+		{
+			int createThisMany = 10;
+
+			IList<DeviceResponse> responses = new List<DeviceResponse>(createThisMany);
+			IList<DeviceRequest> requests = _generator.GetDeviceRequests
+			(
+				createThisMany,
+				(farmResponses == null || farmResponses.Count() == 0 ? null : farmResponses.Select(r => r.Id)),
+				deviceModelResponses.Select(r => r.Id)
+			);
+
+			foreach (DeviceRequest request in requests)
+			{
+				HttpResponseMessage httpResponseMessage = await _apiClient.PostResourceAsync(request);
+				DeviceResponse response = await _apiClient.GetResourceFromHttpResponseAsync<DeviceResponse>(httpResponseMessage);
+				responses.Add(response);
+			}
+
+			return responses;
+		}
+
+		static async Task<IList<SensorModelResponse>> CreateSensorModelsAsync()
+		{
+			int createThisMany = 10;
+
+			IList<SensorModelResponse> responses = new List<SensorModelResponse>(createThisMany);
+			IList<SensorModelRequest> requests = _generator.GetSensorModelRequests(createThisMany);
+
+			foreach (SensorModelRequest request in requests)
+			{
+				HttpResponseMessage httpResponseMessage = await _apiClient.PostResourceAsync(request);
+				SensorModelResponse response = await _apiClient.GetResourceFromHttpResponseAsync<SensorModelResponse>(httpResponseMessage);
+				responses.Add(response);
+			}
+
+			return responses;
+		}
+
+		static async Task<IList<SensorResponse>> CreateSensorsAsync(IList<DeviceResponse> deviceResponses, IList<SensorModelResponse> sensorModelResponses)
+		{
+			int createThisMany = 10;
+
+			IList<SensorResponse> responses = new List<SensorResponse>(createThisMany);
+			IList<SensorRequest> requests = _generator.GetSensorRequests
+			(
+				createThisMany,
+				deviceResponses.Select(r => r.Id),
+				sensorModelResponses.Select(r => r.Id)
+			);
+
+			foreach (SensorRequest request in requests)
+			{
+				HttpResponseMessage httpResponseMessage = await _apiClient.PostResourceAsync(request);
+				SensorResponse response = await _apiClient.GetResourceFromHttpResponseAsync<SensorResponse>(httpResponseMessage);
+				responses.Add(response);
+			}
+
+			return responses;
 		}
 
 		private static dynamic GetConfiguration()
